@@ -1,59 +1,56 @@
 pipeline {
     agent any
 
-    environment {
-        NODE_ENV = 'production'
+    tools {
+        nodejs 'Node 18'
     }
 
-    tools {
-        nodejs 'NodeJS 18' // Make sure this matches the name of your Node.js tool in Jenkins config
+    environment {
+        // Define environment variables if needed
     }
 
     stages {
+        stage('Clone') {
+            steps {
+                git 'https://github.com/your-username/your-nodejs-repo.git'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                echo 'Installing dependencies...'
                 sh 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                echo 'Running tests...'
                 sh 'npm test'
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building the app...'
-                sh 'npm run build' // optional, if you have a build step
+                script {
+                    docker.build('my-nodejs-app')
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
+                    script {
+                        docker.image('my-nodejs-app').push('latest')
+                    }
+                }
             }
         }
 
         stage('Deploy') {
-            when {
-                branch 'main'
-            }
             steps {
-                echo 'Deploying application...'
-                // Example: sh './scripts/deploy.sh'
+                echo 'Deploying to server...'
+                // Add SSH or Kubernetes deploy logic here
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'Cleaning up...'
-            cleanWs()
-        }
-
-        failure {
-            echo 'Pipeline failed!'
-        }
-
-        success {
-            echo 'Pipeline completed successfully!'
         }
     }
 }
