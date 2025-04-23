@@ -9,4 +9,8 @@
     "express": "^4.17.1",
     "body-parser": "1.19.0"
   }
+  "scripts": {
+  "test": "echo \"No tests yet\" && exit 0"
+}
+
 }
