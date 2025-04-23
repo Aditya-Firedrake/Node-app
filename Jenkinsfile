@@ -5,14 +5,10 @@ pipeline {
         nodejs 'Node 18'
     }
 
-    environment {
-        // Define environment variables if needed
-    }
-
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/your-username/your-nodejs-repo.git'
+                git 'https://github.com/Aditya-Firedrake/Node-app.git'
             }
         }
 
@@ -25,31 +21,6 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh 'npm test'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build('my-nodejs-app')
-                }
-            }
-        }
-
-        stage('Push to DockerHub') {
-            steps {
-                withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
-                    script {
-                        docker.image('my-nodejs-app').push('latest')
-                    }
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying to server...'
-                // Add SSH or Kubernetes deploy logic here
             }
         }
     }
