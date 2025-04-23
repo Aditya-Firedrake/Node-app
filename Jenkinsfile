@@ -6,9 +6,9 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = 'node-app'       // Customize this if needed
+        IMAGE_NAME = 'node-app'
         IMAGE_TAG = 'latest'
-        DOCKER_REGISTRY = ''          // Optional: Add your DockerHub or other registry here
+        CONTAINER_NAME = "${IMAGE_NAME}_container"
     }
 
     stages {
@@ -32,26 +32,42 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
-                }
+                sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                script {
-                    sh "docker run -d -p 3000:3000 --name ${IMAGE_NAME}_container $IMAGE_NAME:$IMAGE_TAG"
-                }
+                // Stop any existing container with same name
+                sh "docker rm -f $CONTAINER_NAME || true"
+
+                // Run new container
+                sh "docker run -d -p 3000:3000 --name $CONTAINER_NAME $IMAGE_NAME:$IMAGE_TAG"
+            }
+        }
+
+        stage('Docker Status') {
+            steps {
+                echo '--- Docker Images ---'
+                sh 'docker images'
+
+                echo '--- Running Containers ---'
+                sh 'docker ps -a'
             }
         }
     }
 
     post {
-        always {
-            echo 'Cleaning up...'
-            // Optional: Stop and remove container if needed
-            sh "docker rm -f ${IMAGE_NAME}_container || true"
+        success {
+            echo 'Pipeline completed successfully.'
         }
+        failure {
+            echo 'Pipeline failed.'
+        }
+        // Remove this if you want to keep the container running
+        // always {
+        //     echo 'Cleaning up...'
+        //     sh "docker rm -f $CONTAINER_NAME || true"
+        // }
     }
 }
