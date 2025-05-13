@@ -42,7 +42,7 @@ pipeline {
                 sh "docker rm -f $CONTAINER_NAME || true"
 
                 // Run new container
-                sh "docker run -d -p 3001:80 --name $CONTAINER_NAME $IMAGE_NAME:$IMAGE_TAG"
+                sh "docker run -d -p 3002:80 --name $CONTAINER_NAME $IMAGE_NAME:$IMAGE_TAG"
             }
         }
 
